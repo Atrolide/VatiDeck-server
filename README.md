@@ -2,7 +2,7 @@
 
 ## Overview
 
-VatiDeck-server is a Go-based HTTP server using the [`Gorilla Mux`](github.com/gorilla/mux) router.
+VatiDeck-server is a Go-based HTTP server using the [`Gorilla Mux`](https://github.com/gorilla/mux) router.
 
 > [!NOTE]  
 > Under development

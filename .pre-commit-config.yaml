@@ -1,0 +1,26 @@
+repos:
+  - repo: local
+    hooks:
+      - id: go fmt
+        name: Go Fmt
+        entry: sh -c "go fmt ./..."
+        language: system
+        types: [go]
+
+      - id: go vet
+        name: Go Vet
+        entry: sh -c "go vet ./..."
+        language: system
+        types: [go]
+
+      - id: go test
+        name: Go Test
+        entry: sh -c "go test ./..."
+        language: system
+        types: [go]
+
+      - id: gosec
+        name: Gosec
+        entry: sh -c "gosec ./..."
+        language: system
+        types: [go]

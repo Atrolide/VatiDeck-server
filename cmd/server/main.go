@@ -17,12 +17,12 @@ import (
 
 const (
 	// Port to listen on
-	port = ":8080"
+	Port = ":8080"
 
 	// Timeouts
-	readTimeout     = 10 * time.Second
-	writeTimeout    = 10 * time.Second
-	shutdownTimeout = 5 * time.Second
+	ReadTimeout     = 10 * time.Second
+	WriteTimeout    = 10 * time.Second
+	ShutdownTimeout = 5 * time.Second
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 	log := logger.InitLogger()
 
 	// Log server start
-	log.Info("Starting VatiDeck server on port " + port)
+	log.Info("Starting VatiDeck server on port " + Port)
 
 	// Create a custom Gorilla mux (router)
 	router := mux.NewRouter()
@@ -40,10 +40,10 @@ func main() {
 
 	// Define an http.Server with custom settings
 	server := &http.Server{
-		Addr:         port,         // Port to listen on
+		Addr:         Port,         // Port to listen on
 		Handler:      router,       // Attach Gorilla mux (router)
-		ReadTimeout:  readTimeout,  // Max time to read the request in seconds
-		WriteTimeout: writeTimeout, // Max time to write the response in seconds
+		ReadTimeout:  ReadTimeout,  // Max time to read the request in seconds
+		WriteTimeout: WriteTimeout, // Max time to write the response in seconds
 	}
 
 	// Channel for graceful shutdown
@@ -51,13 +51,14 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	// Start server
+	// Start the server in a goroutine to allow for graceful shutdown
 	go func() {
-		log.Info("VatiDeck server started on port " + port)
+		log.Info("VatiDeck server started on port " + Port)
 		if err := server.ListenAndServe(); err != nil {
 			if err == http.ErrServerClosed {
 				log.Info("Server closed")
 			} else {
-				log.Error("Error starting server on port " + port + ": " + err.Error())
+				log.Error("Error starting server on port " + Port + ": " + err.Error())
 			}
 		}
 	}()
@@ -65,16 +66,17 @@ func main() {
 	// Wait for an interrupt signal
 	<-sigChan // (•ᴗ•)
 	// Create context with a 5-second timeout for graceful shutdown
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), ShutdownTimeout)
 	defer cancel()
 
-	shutdownServer(ctx, server, log)
+	// Call ShutdownServer to gracefully shut down the server with a timeout context
+	ShutdownServer(ctx, server, log)
 }
 
 // REVIEW: Move to a separate package?
 
-// shutdownServer handles graceful shutdown of the server.
-func shutdownServer(ctx context.Context, server *http.Server, log *logger.Logger) {
+// ShutdownServer handles graceful shutdown of the server.
+func ShutdownServer(ctx context.Context, server *http.Server, log *logger.Logger) {
 	log.Info("Shutting down server...")
 
 	// Graceful shutdown
